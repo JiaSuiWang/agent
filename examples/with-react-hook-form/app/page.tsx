@@ -11,6 +11,7 @@ const SetFormFieldTool = () => {
   return (
     <p className="text-center font-mono text-sm font-bold text-blue-500">
       set_form_field(...)
+      {/* set_form_field(hello) */}
     </p>
   );
 };
