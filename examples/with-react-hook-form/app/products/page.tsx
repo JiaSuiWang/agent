@@ -12,6 +12,8 @@ import { InfoIcon, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { AssistantSidebar } from "@/components/ui/assistant-ui/assistant-sidebar";
 import { useAssistantInstructions } from "@assistant-ui/react";
+import { useState } from "react";
+import { Toast } from "@/components/ui/toast";
 
 const products = [
   {
@@ -39,6 +41,15 @@ const products = [
 
 export default function ProductsPage() {
   useAssistantInstructions("帮助用户了解产品信息并填写表单。");
+  const [cartCount, setCartCount] = useState(0);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+
+  const handleAddToCart = (productName: string) => {
+    setCartCount((prev) => prev + 1);
+    setToastMessage(`${productName} 已添加到购物车`);
+    setShowToast(true);
+  };
 
   return (
     <AssistantSidebar>
@@ -46,12 +57,22 @@ export default function ProductsPage() {
         <div className="container mx-auto py-8">
           <div className="mb-8 flex items-center justify-between">
             <h1 className="text-3xl font-bold">产品展示</h1>
-            <Link href="/">
-              <Button variant="outline" className="flex items-center gap-2">
-                <InfoIcon className="h-4 w-4" />
-                填写表单
-              </Button>
-            </Link>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <ShoppingCart className="h-6 w-6" />
+                {cartCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                    {cartCount}
+                  </span>
+                )}
+              </div>
+              <Link href="/">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <InfoIcon className="h-4 w-4" />
+                  填写表单
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -66,7 +87,10 @@ export default function ProductsPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600">{product.description}</p>
-                  <Button className="mt-4 flex w-full items-center gap-2">
+                  <Button
+                    className="mt-4 flex w-full items-center gap-2"
+                    onClick={() => handleAddToCart(product.name)}
+                  >
                     <ShoppingCart className="h-4 w-4" />
                     加入购物车
                   </Button>
@@ -76,6 +100,11 @@ export default function ProductsPage() {
           </div>
         </div>
       </div>
+      <Toast
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        message={toastMessage}
+      />
     </AssistantSidebar>
   );
 }
