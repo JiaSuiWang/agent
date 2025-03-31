@@ -112,7 +112,9 @@ export default function CartPage() {
                       ¥{total}
                     </span>
                   </div>
-                  <Button className="mt-4 w-full">结算</Button>
+                  <Link href="/">
+                    <Button className="mt-4 w-full">结算</Button>
+                  </Link>
                 </CardContent>
               </Card>
             </div>

@@ -7,7 +7,7 @@ import { useAssistantForm } from "@assistant-ui/react-hook-form";
 import { useAssistantInstructions } from "@assistant-ui/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ShoppingBagIcon } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const SetFormFieldTool = () => {
   return (
@@ -54,21 +54,22 @@ export default function Home() {
       <div className="h-full overflow-y-scroll">
         <main className="container py-8">
           <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="mb-2 text-2xl font-semibold">
-                Simon&apos;s Hackathon
-              </h1>
-              <p>
-                I&apos;m hosting a Hackathon on AI UX. Be the first to get an
-                invite!
-              </p>
+            <div className="flex items-center gap-4">
+              <Link href="/cart">
+                <Button variant="ghost" size="icon">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              </Link>
+              <div>
+                <h1 className="mb-2 text-2xl font-semibold">
+                  Simon&apos;s Hackathon
+                </h1>
+                <p>
+                  I&apos;m hosting a Hackathon on AI UX. Be the first to get an
+                  invite!
+                </p>
+              </div>
             </div>
-            <Link href="/products">
-              <Button variant="outline" className="flex items-center gap-2">
-                <ShoppingBagIcon className="h-4 w-4" />
-                查看产品
-              </Button>
-            </Link>
           </div>
 
           <div className="my-4 font-bold">
