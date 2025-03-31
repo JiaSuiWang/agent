@@ -27,15 +27,17 @@ const SubmitFormTool = () => {
 };
 
 export default function Home() {
-  useAssistantInstructions("Help users sign up for Simon's hackathon.");
+  useAssistantInstructions("帮助用户填写订单配送信息。");
   const form = useAssistantForm({
     defaultValues: {
       firstName: "",
       lastName: "",
       email: "",
-      cityAndCountry: "",
-      projectIdea: "",
-      proficientTechnologies: "",
+      phone: "",
+      address: "",
+      city: "",
+      postalCode: "",
+      note: "",
     },
     assistant: {
       tools: {
@@ -61,26 +63,10 @@ export default function Home() {
                 </Button>
               </Link>
               <div>
-                <h1 className="mb-2 text-2xl font-semibold">
-                  Simon&apos;s Hackathon
-                </h1>
-                <p>
-                  I&apos;m hosting a Hackathon on AI UX. Be the first to get an
-                  invite!
-                </p>
+                <h1 className="mb-2 text-2xl font-semibold">填写配送信息</h1>
+                <p>请填写您的收货信息，以便我们为您配送商品</p>
               </div>
             </div>
-          </div>
-
-          <div className="my-4 font-bold">
-            Built with{" "}
-            <Link
-              href="https://github.com/assistant-ui/assistant-ui"
-              className="text-blue-600 underline"
-            >
-              assistant-ui
-            </Link>
-            .
           </div>
 
           <Form {...(form as any)}>

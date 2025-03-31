@@ -1,18 +1,12 @@
 "use client";
 
+import { AssistantSidebar } from "@/components/ui/assistant-ui/assistant-sidebar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { useCartStore } from "@/lib/store";
+import { useAssistantInstructions } from "@assistant-ui/react";
 import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { AssistantSidebar } from "@/components/ui/assistant-ui/assistant-sidebar";
-import { useAssistantInstructions } from "@assistant-ui/react";
-import { useCartStore } from "@/lib/store";
 
 export default function CartPage() {
   useAssistantInstructions("帮助用户管理购物车。");
