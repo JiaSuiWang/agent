@@ -24,11 +24,15 @@ export const useCartStore = create<CartStore>((set) => ({
       if (existingItem) {
         return {
           items: state.items.map((i) =>
-            i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i,
+            i.id === item.id
+              ? { ...i, quantity: i.quantity + (item.quantity || 1) }
+              : i,
           ),
         };
       }
-      return { items: [...state.items, { ...item, quantity: 1 }] };
+      return {
+        items: [...state.items, { ...item, quantity: item.quantity || 1 }],
+      };
     }),
   removeItem: (id) =>
     set((state) => ({

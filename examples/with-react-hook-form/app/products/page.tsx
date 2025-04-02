@@ -1,5 +1,6 @@
 "use client";
 
+import { useCartStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,9 +13,18 @@ import { InfoIcon, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { AssistantSidebar } from "@/components/ui/assistant-ui/assistant-sidebar";
 import { useAssistantInstructions } from "@assistant-ui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Toast } from "@/components/ui/toast";
-import { useCartStore } from "@/lib/store";
+import { useAssistantTools } from "../../lib/useAssistantTool";
+
+type Product = {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  image: string;
+  quantity?: number;
+};
 
 const products = [
   {
@@ -42,16 +52,39 @@ const products = [
 
 export default function ProductsPage() {
   useAssistantInstructions("帮助用户了解产品信息并填写表单。");
+  useAssistantTools();
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const { items, addItem } = useCartStore();
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleAddToCart = (product: (typeof products)[0]) => {
-    addItem(product);
-    setToastMessage(`${product.name} 已添加到购物车`);
+  const handleAddToCart = (product: Product, quantity: number = 1) => {
+    addItem({ ...product, quantity });
+    setToastMessage(`Added ${quantity} ${product.name} to cart`);
     setShowToast(true);
   };
+
+  // Listen for add_to_cart command
+  useEffect(() => {
+    const handleAddToCartEvent = (event: CustomEvent) => {
+      const { productId, quantity = 1 } = event.detail;
+      const product = products.find((p) => p.id === productId);
+      if (product) {
+        handleAddToCart(product, quantity);
+      }
+    };
+
+    window.addEventListener(
+      "add_to_cart",
+      handleAddToCartEvent as EventListener,
+    );
+    return () => {
+      window.removeEventListener(
+        "add_to_cart",
+        handleAddToCartEvent as EventListener,
+      );
+    };
+  }, []);
 
   return (
     <AssistantSidebar>
