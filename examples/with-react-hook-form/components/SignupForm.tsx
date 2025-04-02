@@ -60,43 +60,6 @@ export const SignupForm: FC = () => {
     }
   };
 
-  // 监听 AI 的 set_form_field 命令
-  useEffect(() => {
-    const handleSetFormField = (event: CustomEvent) => {
-      const { field, value } = event.detail;
-      form.setValue(field, value);
-    };
-
-    // 添加事件监听器
-    window.addEventListener(
-      "set_form_field",
-      handleSetFormField as EventListener,
-    );
-
-    // 清理事件监听器
-    return () => {
-      window.removeEventListener(
-        "set_form_field",
-        handleSetFormField as EventListener,
-      );
-    };
-  }, [form]);
-
-  // 监听 AI 的 submit_form 命令
-  useEffect(() => {
-    const handleSubmitForm = () => {
-      form.handleSubmit(onSubmit)();
-    };
-
-    // 添加事件监听器
-    window.addEventListener("submit_form", handleSubmitForm);
-
-    // 清理事件监听器
-    return () => {
-      window.removeEventListener("submit_form", handleSubmitForm);
-    };
-  }, [form]);
-
   if (isSubmitting)
     return (
       <div className="flex flex-col items-center justify-center py-8">
