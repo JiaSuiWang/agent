@@ -56,7 +56,7 @@ export default function ProductsPage() {
   return (
     <AssistantSidebar>
       <div className="h-full overflow-y-scroll">
-        <div className="container mx-auto py-8">
+        <div className="container mx-auto max-w-7xl py-8">
           <div className="mb-8 flex items-center justify-between">
             <h1 className="text-3xl font-bold">产品展示</h1>
             <div className="flex items-center gap-4">
@@ -79,23 +79,32 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {products.map((product) => (
               <Card
                 key={product.id}
-                className="transition-shadow hover:shadow-lg"
+                className="group relative overflow-hidden border border-gray-100 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
               >
-                <CardHeader>
-                  <CardTitle>{product.name}</CardTitle>
-                  <CardDescription>{product.price}</CardDescription>
+                <div className="aspect-square w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                  <div className="h-full w-full bg-gradient-to-br from-gray-100 to-gray-200" />
+                </div>
+                <CardHeader className="space-y-1">
+                  <CardTitle className="line-clamp-1 text-lg font-semibold tracking-tight">
+                    {product.name}
+                  </CardTitle>
+                  <CardDescription className="text-primary text-lg font-medium">
+                    {product.price}
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">{product.description}</p>
+                <CardContent className="space-y-2">
+                  <p className="text-muted-foreground/80 line-clamp-2 text-sm">
+                    {product.description}
+                  </p>
                   <Button
-                    className="mt-4 flex w-full items-center gap-2"
+                    className="bg-primary/90 hover:bg-primary mt-2 w-full transition-colors hover:shadow-md"
                     onClick={() => handleAddToCart(product)}
                   >
-                    <ShoppingCart className="h-4 w-4" />
+                    <ShoppingCart className="mr-2 h-4 w-4" />
                     加入购物车
                   </Button>
                 </CardContent>
