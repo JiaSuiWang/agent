@@ -7,13 +7,20 @@ import { useCartStore } from "@/lib/store";
 import { useAssistantInstructions } from "@assistant-ui/react";
 import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAssistantTools } from "../../lib/useAssistantTool";
+import { useEventListeners } from "../../lib/evetListener";
 
 export default function CartPage() {
   useAssistantInstructions("帮助用户管理购物车。");
+  useAssistantTools();
+  useEventListeners([], undefined);
+
   const { items, removeItem, updateQuantity } = useCartStore();
+  const router = useRouter();
 
   const total = items.reduce((sum, item) => {
-    const price = parseInt(item.price.replace("¥", ""));
+    const price = parseFloat(item.price.replace("¥", ""));
     return sum + price * item.quantity;
   }, 0);
 
@@ -103,11 +110,16 @@ export default function CartPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-semibold">总计:</span>
                     <span className="text-primary text-2xl font-bold">
-                      ¥{total}
+                      ¥{total.toFixed(2)}
                     </span>
                   </div>
                   <Link href="/">
-                    <Button className="mt-4 w-full">结算</Button>
+                    <Button
+                      className="mt-4 w-full"
+                      onClick={() => router.push("/")}
+                    >
+                      结算
+                    </Button>
                   </Link>
                 </CardContent>
               </Card>

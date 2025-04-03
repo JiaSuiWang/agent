@@ -8,6 +8,8 @@ import { useAssistantInstructions } from "@assistant-ui/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useAssistantTools } from "../lib/useAssistantTool";
+import { useEventListeners } from "../lib/evetListener";
 
 const SetFormFieldTool = () => {
   return (
@@ -28,6 +30,9 @@ const SubmitFormTool = () => {
 
 export default function Home() {
   useAssistantInstructions("帮助用户填写订单配送信息。");
+  useAssistantTools();
+  useEventListeners([], undefined);
+
   const form = useAssistantForm({
     defaultValues: {
       firstName: "",
