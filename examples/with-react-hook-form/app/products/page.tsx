@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useCartStore } from "@/lib/store";
@@ -99,18 +98,38 @@ export default function ProductsPage() {
                 className="group relative overflow-hidden border border-gray-100 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
               >
                 <div className="aspect-square w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    width={400}
-                    height={400}
-                    className="h-full w-full object-cover"
-                  />
+                  {product.id === 1 ? (
+                    <Link href="/products/headset">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        width={400}
+                        height={400}
+                        className="h-full w-full cursor-pointer object-cover"
+                      />
+                    </Link>
+                  ) : (
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      width={400}
+                      height={400}
+                      className="h-full w-full object-cover"
+                    />
+                  )}
                 </div>
                 <CardHeader className="space-y-1">
-                  <CardTitle className="line-clamp-1 text-lg font-semibold tracking-tight">
-                    {product.name}
-                  </CardTitle>
+                  {product.id === 1 ? (
+                    <Link href="/products/headset">
+                      <CardTitle className="hover:text-primary line-clamp-1 cursor-pointer text-lg font-semibold tracking-tight hover:underline">
+                        {product.name}
+                      </CardTitle>
+                    </Link>
+                  ) : (
+                    <CardTitle className="line-clamp-1 text-lg font-semibold tracking-tight">
+                      {product.name}
+                    </CardTitle>
+                  )}
                   <CardDescription className="text-primary text-lg font-medium">
                     {product.price}
                   </CardDescription>
@@ -140,5 +159,3 @@ export default function ProductsPage() {
     </AssistantSidebar>
   );
 }
-
-
