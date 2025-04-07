@@ -1,0 +1,1130 @@
+Changes collected at 2025-04-07 18:19:14
+
+
+================================================================================
+File: examples/with-react-hook-form/app/cart/page.tsx
+================================================================================
+
+"use client";
+
+import { AssistantSidebar } from "@/components/ui/assistant-ui/assistant-sidebar";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useCartStore } from "@/lib/store";
+import { useAssistantInstructions } from "@assistant-ui/react";
+import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAssistantTools } from "../../lib/useAssistantTools";
+import { useEventListeners } from "../../lib/eventListeners";
+import Image from "next/image";
+
+export default function CartPage() {
+  useAssistantInstructions("Help the user manage their shopping cart.");
+  useAssistantTools();
+  useEventListeners([], undefined);
+
+  const { items, removeItem, updateQuantity } = useCartStore();
+  const router = useRouter();
+
+  const total = items.reduce((sum, item) => {
+    const price = parseFloat(item.price.replace("¥", ""));
+    return sum + price * item.quantity;
+  }, 0);
+
+  return (
+    <AssistantSidebar>
+      <div className="h-full overflow-y-scroll">
+        <div className="container mx-auto py-8">
+          <div className="mb-8 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/products">
+                <Button variant="ghost" size="icon">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              </Link>
+              <h1 className="text-3xl font-bold">购物车</h1>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <ShoppingCart className="h-6 w-6" />
+                {items.length > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                    {items.reduce((sum, item) => sum + item.quantity, 0)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {items.length === 0 ? (
+            <div className="py-8 text-center">
+              <p className="text-gray-500">购物车是空的</p>
+              <Link href="/products">
+                <Button className="mt-4">继续购物</Button>
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {items.map((item) => (
+                <Card
+                  key={item.id}
+                  className="flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-4 p-4">
+                    <div className="relative h-20 w-20 overflow-hidden rounded-lg">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        width={80}
+                        height={80}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">{item.name}</h3>
+                      <p className="text-gray-600">{item.price}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 p-4">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => updateQuantity(item.id, -1)}
+                      >
+                        -
+                      </Button>
+                      <span className="w-8 text-center">{item.quantity}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => updateQuantity(item.id, 1)}
+                      >
+                        +
+                      </Button>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeItem(item.id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+
+              <Card className="mt-6">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-semibold">总计:</span>
+                    <span className="text-primary text-2xl font-bold">
+                      ¥{total.toFixed(2)}
+                    </span>
+                  </div>
+                  <Link href="/form">
+                    <Button
+                      className="mt-4 w-full"
+                      onClick={() => router.push("/form")}
+                    >
+                      结算
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      </div>
+    </AssistantSidebar>
+  );
+}
+
+
+================================================================================
+File: examples/with-react-hook-form/app/form/SignupForm.tsx
+================================================================================
+
+"use client";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { type FC, useState } from "react";
+import { useFormContext } from "react-hook-form";
+import Link from "next/link";
+import { CheckCircle2, AlertCircle } from "lucide-react";
+import { useCartStore } from "../../lib/store";
+
+export const SignupForm: FC<{
+  isSubmitted: boolean;
+  setIsSubmitted: (value: boolean) => void;
+}> = ({ isSubmitted, setIsSubmitted }) => {
+  const form = useFormContext();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { clearCart } = useCartStore();
+
+  const onSubmit = async (values: object) => {
+    console.log("onSubmit", values);
+    try {
+      setIsSubmitting(true);
+      setError(null);
+      setIsSubmitted(true); // 设置提交状态
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Submission failed. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (isSubmitting)
+    return (
+      <div className="flex flex-col items-center justify-center py-8">
+        <p className="text-lg font-semibold text-green-600">Submitting...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex flex-col items-center justify-center py-8">
+        <AlertCircle className="mb-4 h-16 w-16 text-red-500" />
+        <h2 className="mb-2 text-2xl font-bold text-red-600">
+          Submission Failed
+        </h2>
+        <p className="mb-6 text-gray-600">{error}</p>
+        <Button onClick={() => setError(null)}>Try Again</Button>
+      </div>
+    );
+
+  if (isSubmitted)
+    return (
+      <div className="flex flex-col items-center justify-center py-8">
+        <CheckCircle2 className="mb-4 h-16 w-16 text-green-500" />
+        <h2 className="mb-2 text-2xl font-bold text-green-600">
+          Order Submitted Successfully!
+        </h2>
+        <p className="mb-6 text-gray-600">
+          Thank you for your order. We will contact you shortly.
+        </p>
+        <Link href="/products">
+          <Button onClick={() => clearCart()}>Continue Shopping</Button>
+        </Link>
+      </div>
+    );
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <input type="hidden" {...form.register("hidden")} />
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="firstName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First Name *</FormLabel>
+                <FormDescription>Enter your first name</FormDescription>
+                <FormControl>
+                  <Input placeholder="John" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name *</FormLabel>
+                <FormDescription>Enter your last name</FormDescription>
+                <FormControl>
+                  <Input placeholder="Doe" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email *</FormLabel>
+                <FormDescription>For order notifications</FormDescription>
+                <FormControl>
+                  <Input
+                    placeholder="john.doe@example.com"
+                    type="email"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone Number *</FormLabel>
+                <FormDescription>For delivery notifications</FormDescription>
+                <FormControl>
+                  <Input
+                    placeholder="+1 (555) 000-0000"
+                    type="tel"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Address *</FormLabel>
+              <FormDescription>Enter your delivery address</FormDescription>
+              <FormControl>
+                <Input placeholder="123 Main St" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>City *</FormLabel>
+                <FormDescription>Enter your city</FormDescription>
+                <FormControl>
+                  <Input placeholder="New York" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="postalCode"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Postal Code *</FormLabel>
+                <FormDescription>Enter your postal code</FormDescription>
+                <FormControl>
+                  <Input placeholder="10001" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <FormField
+          control={form.control}
+          name="note"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Note (Optional)</FormLabel>
+              <FormDescription>
+                Any special instructions for delivery?
+              </FormDescription>
+              <FormControl>
+                <Input
+                  placeholder="e.g., Please deliver during business hours"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" className="w-full">
+          Submit Order
+        </Button>
+      </form>
+    </Form>
+  );
+};
+
+
+================================================================================
+File: examples/with-react-hook-form/app/form/page.tsx
+================================================================================
+
+"use client";
+
+import { SignupForm } from "./SignupForm";
+import { AssistantSidebar } from "@/components/ui/assistant-ui/assistant-sidebar";
+import { Form } from "@/components/ui/form";
+import { useAssistantInstructions } from "@assistant-ui/react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { useAssistantTools } from "../../lib/useAssistantTools";
+import { useFormTools } from "../../lib/useFormTools";
+import { useEventListeners } from "../../lib/eventListeners";
+import { useState } from "react";
+
+export default function FormPage() {
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  useAssistantInstructions(
+    "Help the user complete the order shipping information form.",
+  );
+
+  // 使用分离的工具 - 表单工具单独处理
+  const form = useFormTools(
+    {
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@example.com",
+      phone: "+1 (555) 123-4567",
+      address: "123 Main Street, Apt 4B",
+      city: "New York",
+      postalCode: "10001",
+      note: "Please deliver in the afternoon if possible",
+    },
+    setIsSubmitted,
+  );
+
+  // 电商相关工具
+  useAssistantTools();
+
+  useEventListeners([], undefined);
+
+  return (
+    <AssistantSidebar>
+      <div className="h-full overflow-y-scroll">
+        <main className="container py-8">
+          <div className="mb-8 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/cart">
+                <Button variant="ghost" size="icon">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              </Link>
+              <div>
+                <h1 className="mb-2 text-2xl font-semibold">填写配送信息</h1>
+              </div>
+            </div>
+          </div>
+
+          <Form {...form}>
+            <SignupForm
+              isSubmitted={isSubmitted}
+              setIsSubmitted={setIsSubmitted}
+            />
+          </Form>
+        </main>
+      </div>
+    </AssistantSidebar>
+  );
+}
+
+
+================================================================================
+File: examples/with-react-hook-form/app/page.tsx
+================================================================================
+
+import ProductsPage from "./products/page";
+
+export default ProductsPage;
+
+
+================================================================================
+File: examples/with-react-hook-form/app/products/page.tsx
+================================================================================
+
+"use client";
+
+import { useCartStore } from "@/lib/store";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ShoppingCart } from "lucide-react";
+import Link from "next/link";
+import { AssistantSidebar } from "@/components/ui/assistant-ui/assistant-sidebar";
+import { useAssistantInstructions } from "@assistant-ui/react";
+import { useState } from "react";
+import { Toast } from "@/components/ui/toast";
+import { useAssistantTools } from "../../lib/useAssistantTools";
+import { useEventListeners } from "../../lib/eventListeners";
+import Image from "next/image";
+
+type Product = {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  image: string;
+  quantity?: number;
+};
+
+const products = [
+  {
+    id: 1,
+    name: "无线耳机",
+    description: "高品质无线蓝牙耳机，支持主动降噪",
+    price: "¥999",
+    image: "/images/headphone.jpg",
+  },
+  {
+    id: 2,
+    name: "智能电饭煲",
+    description: "多功能智能电饭煲，支持多种烹饪模式",
+    price: "¥599",
+    image: "/images/rice-cooker.jpg",
+  },
+  {
+    id: 3,
+    name: "智能冰箱",
+    description: "大容量智能冰箱，支持温度智能调节",
+    price: "¥3999",
+    image: "/images/fridge.jpg",
+  },
+];
+
+export default function ProductsPage() {
+  useAssistantInstructions(
+    "Help the user understand product information and assist with shopping.",
+  );
+  useAssistantTools();
+
+  const handleAddToCart = (product: Product, quantity: number = 1) => {
+    addItem({ ...product, quantity });
+    setToastMessage(`Added ${quantity} ${product.name} to cart`);
+    setShowToast(true);
+  };
+
+  useEventListeners(products, handleAddToCart);
+
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const { items, addItem } = useCartStore();
+  const cartCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  return (
+    <AssistantSidebar>
+      <div className="h-full overflow-y-scroll">
+        <div className="container mx-auto max-w-7xl py-8">
+          <div className="mb-8 flex items-center justify-between">
+            <h1 className="text-3xl font-bold">产品展示</h1>
+            <div className="flex items-center gap-4">
+              <Link href="/cart">
+                <div className="relative cursor-pointer">
+                  <ShoppingCart className="h-6 w-6" />
+                  {cartCount > 0 && (
+                    <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                      {cartCount}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {products.map((product) => (
+              <Card
+                key={product.id}
+                className="group relative overflow-hidden border border-gray-100 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
+              >
+                <div className="aspect-square w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    width={400}
+                    height={400}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <CardHeader className="space-y-1">
+                  <CardTitle className="line-clamp-1 text-lg font-semibold tracking-tight">
+                    {product.name}
+                  </CardTitle>
+                  <CardDescription className="text-primary text-lg font-medium">
+                    {product.price}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p className="text-muted-foreground/80 line-clamp-2 text-sm">
+                    {product.description}
+                  </p>
+                  <Button
+                    className="bg-primary/90 hover:bg-primary mt-2 w-full transition-colors hover:shadow-md"
+                    onClick={() => handleAddToCart(product)}
+                  >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    加入购物车
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+      <Toast
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        message={toastMessage}
+      />
+    </AssistantSidebar>
+  );
+}
+
+
+================================================================================
+File: examples/with-react-hook-form/lib/eventListeners.tsx
+================================================================================
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useCartStore } from "@/lib/store";
+
+type Product = {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  image: string;
+  quantity?: number;
+};
+
+/**
+ * Custom hook to manage all event listeners in one place
+ */
+export const useEventListeners = (
+  products: Product[],
+  onAddToCart?: (product: Product, quantity: number) => void,
+) => {
+  const router = useRouter();
+  const { items } = useCartStore();
+
+  // Listen for add_to_cart command
+  useEffect(() => {
+    if (!products || !onAddToCart) return;
+
+    const handleAddToCartEvent = (event: CustomEvent) => {
+      const { productId, quantity = 1 } = event.detail;
+      const product = products.find((p) => p.id === productId);
+      if (product) {
+        onAddToCart(product, quantity);
+      }
+    };
+
+    window.addEventListener(
+      "add_to_cart",
+      handleAddToCartEvent as EventListener,
+    );
+    return () => {
+      window.removeEventListener(
+        "add_to_cart",
+        handleAddToCartEvent as EventListener,
+      );
+    };
+  }, [products, onAddToCart]);
+
+  // Listen for go_to_cart command
+  useEffect(() => {
+    const handleGoToCart = () => {
+      router.push("/cart");
+    };
+
+    window.addEventListener("go_to_cart", handleGoToCart as EventListener);
+    return () => {
+      window.removeEventListener("go_to_cart", handleGoToCart as EventListener);
+    };
+  }, [router]);
+
+  // Listen for process_order command
+  useEffect(() => {
+    const handleProcessOrder = () => {
+      router.push("/form"); // Navigate to the form page
+    };
+
+    window.addEventListener(
+      "process_order",
+      handleProcessOrder as EventListener,
+    );
+    return () => {
+      window.removeEventListener(
+        "process_order",
+        handleProcessOrder as EventListener,
+      );
+    };
+  }, [router]);
+
+  // Custom hook for get_cart_items functionality
+  // This doesn't need an event listener, as it's directly called from the tool
+  const getCartItems = () => {
+    const cartItems = items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+    }));
+
+    const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = items.reduce(
+      (sum, item) =>
+        sum + parseFloat(item.price.replace("¥", "")) * item.quantity,
+      0,
+    );
+
+    return {
+      success: true,
+      cartItems,
+      totalItems: cartItems.length,
+      totalQuantity,
+      totalPrice: `¥${totalPrice.toFixed(2)}`,
+    };
+  };
+
+  return { getCartItems };
+};
+
+
+================================================================================
+File: examples/with-react-hook-form/lib/submitSignup.tsx
+================================================================================
+
+File not found at path: /home/mujin/mujin/test/agent-implement-e-commerce/examples/with-react-hook-form/lib/submitSignup.tsx
+
+================================================================================
+File: examples/with-react-hook-form/lib/useAssistantTools.tsx
+================================================================================
+
+import {
+  useAssistantRuntime,
+  useAssistantToolUI,
+  Tool,
+  ModelContext,
+} from "@assistant-ui/react";
+import { useEffect } from "react";
+import { useCartStore } from "@/lib/store";
+import Image from "next/image";
+
+const AddToCartTool = () => {
+  return (
+    <p className="text-center font-mono text-sm font-bold text-blue-500">
+      add_to_cart(...)
+    </p>
+  );
+};
+
+const GoToCartTool = () => {
+  return (
+    <p className="text-center font-mono text-sm font-bold text-green-500">
+      go_to_cart(...)
+    </p>
+  );
+};
+
+const GetCartItemsTool = () => {
+  const { items } = useCartStore();
+  const totalPrice = items.reduce(
+    (sum, item) =>
+      sum + parseFloat(item.price.replace("¥", "")) * item.quantity,
+    0,
+  );
+
+  if (items.length === 0) {
+    return (
+      <div className="rounded-lg border border-gray-200 p-4">
+        <p className="text-center text-gray-500">Your cart is empty</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-gray-200 p-4">
+      <h3 className="mb-3 font-medium text-purple-600">Cart Items:</h3>
+      <div className="max-h-96 space-y-4 overflow-y-auto">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="flex items-center gap-6 rounded-md border border-gray-100 bg-white/50 p-3"
+          >
+            <div className="relative mr-2 h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 shadow-sm">
+              <Image
+                src={item.image}
+                alt={item.name}
+                width={80}
+                height={80}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="min-w-0 flex-1 px-2">
+              <p className="mb-3 truncate text-base font-medium">{item.name}</p>
+              <div className="flex flex-col space-y-2">
+                <p className="text-sm text-gray-500">
+                  {item.price} × {item.quantity}
+                </p>
+                <p className="text-sm font-semibold text-purple-700">
+                  小计: ¥
+                  {(
+                    parseFloat(item.price.replace("¥", "")) * item.quantity
+                  ).toFixed(2)}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex justify-between border-t border-gray-100 pt-3">
+        <p className="font-medium">Total:</p>
+        <p className="font-bold text-purple-600">¥{totalPrice.toFixed(2)}</p>
+      </div>
+    </div>
+  );
+};
+
+const ProcessOrderTool = () => {
+  return (
+    <p className="text-center font-mono text-sm font-bold text-orange-500">
+      process_order(...)
+    </p>
+  );
+};
+
+export const useAssistantTools = () => {
+  const assistantRuntime = useAssistantRuntime();
+  const { items } = useCartStore();
+
+  useEffect(() => {
+    const toolsConfig = {
+      add_to_cart: {
+        description:
+          "Execute this tool when user mentions product names or 'add to cart' related expressions. This tool will find the product by name and add it to the shopping cart. Examples: 'add wireless headphones to cart', 'buy smart rice cooker', 'add smart refrigerator to my cart'. The tool will automatically find the correct product ID based on the product name.",
+        parameters: {
+          type: "object",
+          properties: {
+            productId: {
+              type: "number",
+              description:
+                "The ID of the product to add to cart (1: Wireless Headphones, 2: Smart Rice Cooker, 3: Smart Refrigerator)",
+            },
+            quantity: {
+              type: "number",
+              description: "The quantity of the product to add (default: 1)",
+            },
+          },
+          required: ["productId"],
+        },
+        execute: async (args: { productId: number; quantity?: number }) => {
+          window.dispatchEvent(
+            new CustomEvent("add_to_cart", {
+              detail: {
+                productId: args.productId,
+                quantity: args.quantity || 1,
+              },
+            }),
+          );
+          return { success: true };
+        },
+      } as Tool<any, any>,
+      go_to_cart: {
+        description:
+          "Execute this tool when user expresses desire to view cart, checkout, or proceed to cart page. Examples: 'go to cart', 'view my cart', 'checkout', 'show me what's in my cart', 'I want to see my cart'.",
+        parameters: {
+          type: "object",
+          properties: {},
+          required: [],
+        },
+        execute: async () => {
+          window.dispatchEvent(new CustomEvent("go_to_cart"));
+          return { success: true };
+        },
+      } as Tool<any, any>,
+      get_cart_items: {
+        description:
+          "Execute this tool when user asks about what's in their cart or wants to know cart contents. Examples: 'what's in my cart?', 'what items do I have?', 'show me my cart contents', 'what have I added so far?'",
+        parameters: {
+          type: "object",
+          properties: {},
+          required: [],
+        },
+        execute: async () => {
+          const cartItems = items.map((item) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+          }));
+
+          const totalQuantity = items.reduce(
+            (sum, item) => sum + item.quantity,
+            0,
+          );
+          const totalPrice = items.reduce(
+            (sum, item) =>
+              sum + parseFloat(item.price.replace("¥", "")) * item.quantity,
+            0,
+          );
+
+          return {
+            success: true,
+            cartItems,
+            totalItems: cartItems.length,
+            totalQuantity,
+            totalPrice: `¥${totalPrice.toFixed(2)}`,
+          };
+        },
+      } as Tool<any, any>,
+      process_order: {
+        description:
+          "Execute this tool when user wants to process their order, proceed to checkout, or fill shipping information. Examples: 'process my order', 'proceed to checkout', 'complete my purchase', 'I want to order these items', 'fill shipping information'. This will navigate the user to the form page where they can fill shipping information.",
+        parameters: {
+          type: "object",
+          properties: {},
+          required: [],
+        },
+        execute: async () => {
+          window.dispatchEvent(new CustomEvent("process_order"));
+          return { success: true };
+        },
+      } as Tool<any, any>,
+    };
+
+    // Create system message
+    const systemMessage = `Help users operate the product page. Available products:
+1. Wireless Headphones (ID: 1)
+   - Price: ¥999
+   - Description: High quality wireless Bluetooth headphones with active noise cancellation
+
+2. Smart Rice Cooker (ID: 2)
+   - Price: ¥599
+   - Description: Multi-functional smart rice cooker with various cooking modes
+
+3. Smart Refrigerator (ID: 3)
+   - Price: ¥3999
+   - Description: Large capacity smart refrigerator with intelligent temperature control
+
+When user mentions a product name, find the corresponding product ID and add it to cart.
+When user wants to view their cart or checkout, navigate to the cart page.
+When user asks about their cart contents, check the cart and inform them of what items are in their cart.
+When user wants to proceed with order or checkout, navigate to the form page where they can fill shipping information.`;
+
+    const value: ModelContext = {
+      system: systemMessage,
+      tools: toolsConfig,
+    };
+
+    return assistantRuntime.registerModelContextProvider({
+      getModelContext: () => value,
+    });
+  }, [assistantRuntime, items]);
+
+  // Register common tool UIs
+  useAssistantToolUI({
+    toolName: "add_to_cart",
+    render: AddToCartTool,
+  });
+
+  useAssistantToolUI({
+    toolName: "go_to_cart",
+    render: GoToCartTool,
+  });
+
+  useAssistantToolUI({
+    toolName: "get_cart_items",
+    render: GetCartItemsTool,
+  });
+
+  useAssistantToolUI({
+    toolName: "process_order",
+    render: ProcessOrderTool,
+  });
+};
+
+
+================================================================================
+File: examples/with-react-hook-form/lib/useFormTools.tsx
+================================================================================
+
+import {
+  useAssistantRuntime,
+  useAssistantToolUI,
+  Tool,
+  ModelContext,
+} from "@assistant-ui/react";
+import { useEffect } from "react";
+import {
+  useForm,
+  UseFormReturn,
+  FieldValues,
+  DefaultValues,
+  Path,
+  PathValue,
+} from "react-hook-form";
+import { useCartStore } from "@/lib/store";
+
+const SetFormFieldTool = () => {
+  return (
+    <p className="text-center font-mono text-sm font-bold text-blue-500">
+      set_form_field(...)
+    </p>
+  );
+};
+
+const SubmitFormTool = () => {
+  return (
+    <p className="text-center font-mono text-sm font-bold text-blue-500">
+      submit_form(...)
+    </p>
+  );
+};
+
+export const useFormTools = <TFieldValues extends FieldValues = FieldValues>(
+  formDefaultValues: DefaultValues<TFieldValues>,
+  setIsSubmitted: (value: boolean) => void,
+): UseFormReturn<TFieldValues> => {
+  const assistantRuntime = useAssistantRuntime();
+  const { clearCart } = useCartStore();
+
+  // Initialize form with default values
+  const form = useForm<TFieldValues>({
+    defaultValues: formDefaultValues,
+  });
+
+  const { control, getValues, setValue } = form;
+
+  useEffect(() => {
+    // Form tools config - 直接定义工具逻辑
+    const toolsConfig = {
+      set_form_field: {
+        description: "Set a field value in the form",
+        parameters: {
+          type: "object",
+          properties: {
+            name: {
+              type: "string",
+              description: "The name of the field to set",
+            },
+            value: {
+              type: "string",
+              description: "The value to set",
+            },
+          },
+          required: ["name", "value"],
+        },
+        execute: async (args: { name: string; value: string }) => {
+          setValue(
+            args.name as Path<TFieldValues>,
+            args.value as PathValue<TFieldValues, Path<TFieldValues>>,
+          );
+          return { success: true };
+        },
+      } as Tool<any, any>,
+      submit_form: {
+        description: "Submit the form",
+        parameters: {
+          type: "object",
+          properties: {},
+          required: [],
+        },
+        execute: async () => {
+          // 设置提交状态
+          setIsSubmitted(true);
+
+          return {
+            success: true,
+            message:
+              "Order Submitted Successfully! Thank you for your order. We will contact you shortly.",
+          };
+        },
+      } as Tool<any, any>,
+    };
+
+    // Form-specific system message
+    const systemMessage = `Form State:\n${JSON.stringify(getValues())}`;
+
+    const value: ModelContext = {
+      system: systemMessage,
+      tools: toolsConfig,
+    };
+
+    return assistantRuntime.registerModelContextProvider({
+      getModelContext: () => value,
+    });
+  }, [
+    assistantRuntime,
+    form,
+    setValue,
+    control,
+    getValues,
+    clearCart,
+    setIsSubmitted,
+  ]);
+
+  // Register form tool UIs
+  useAssistantToolUI({
+    toolName: "set_form_field",
+    render: SetFormFieldTool,
+  });
+
+  useAssistantToolUI({
+    toolName: "submit_form",
+    render: SubmitFormTool,
+  });
+
+  return form;
+};
+
+
+================================================================================
+File: examples/with-react-hook-form/public/images/fridge.jpg
+================================================================================
+
+Binary file detected - examples/with-react-hook-form/public/images/fridge.jpg is not a text file
+
+================================================================================
+File: examples/with-react-hook-form/public/images/headphone.jpg
+================================================================================
+
+Binary file detected - examples/with-react-hook-form/public/images/headphone.jpg is not a text file
+
+================================================================================
+File: examples/with-react-hook-form/public/images/rice-cooker.jpg
+================================================================================
+
+Binary file detected - examples/with-react-hook-form/public/images/rice-cooker.jpg is not a text file
+
+
