@@ -1,3 +1,4 @@
+
 "use client";
 
 import { AssistantSidebar } from "@/components/ui/assistant-ui/assistant-sidebar";
@@ -8,11 +9,12 @@ import { useAssistantInstructions } from "@assistant-ui/react";
 import { ArrowLeft, ShoppingCart, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAssistantTools } from "../../lib/useAssistantTool";
-import { useEventListeners } from "../../lib/evetListener";
+import { useAssistantTools } from "../../lib/useAssistantTools";
+import { useEventListeners } from "../../lib/eventListeners";
+import Image from "next/image";
 
 export default function CartPage() {
-  useAssistantInstructions("帮助用户管理购物车。");
+  useAssistantInstructions("Help the user manage their shopping cart.");
   useAssistantTools();
   useEventListeners([], undefined);
 
@@ -65,9 +67,11 @@ export default function CartPage() {
                 >
                   <div className="flex items-center gap-4 p-4">
                     <div className="relative h-20 w-20 overflow-hidden rounded-lg">
-                      <img
+                      <Image
                         src={item.image}
                         alt={item.name}
+                        width={80}
+                        height={80}
                         className="h-full w-full object-cover"
                       />
                     </div>
@@ -113,10 +117,10 @@ export default function CartPage() {
                       ¥{total.toFixed(2)}
                     </span>
                   </div>
-                  <Link href="/">
+                  <Link href="/form">
                     <Button
                       className="mt-4 w-full"
-                      onClick={() => router.push("/")}
+                      onClick={() => router.push("/form")}
                     >
                       结算
                     </Button>
@@ -130,3 +134,5 @@ export default function CartPage() {
     </AssistantSidebar>
   );
 }
+
+

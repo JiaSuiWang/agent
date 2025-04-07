@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useCartStore } from "@/lib/store";
@@ -9,14 +10,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { InfoIcon, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { AssistantSidebar } from "@/components/ui/assistant-ui/assistant-sidebar";
 import { useAssistantInstructions } from "@assistant-ui/react";
 import { useState } from "react";
 import { Toast } from "@/components/ui/toast";
-import { useAssistantTools } from "../../lib/useAssistantTool";
-import { useEventListeners } from "../../lib/evetListener";
+import { useAssistantTools } from "../../lib/useAssistantTools";
+import { useEventListeners } from "../../lib/eventListeners";
+import Image from "next/image";
 
 type Product = {
   id: number;
@@ -33,26 +35,28 @@ const products = [
     name: "无线耳机",
     description: "高品质无线蓝牙耳机，支持主动降噪",
     price: "¥999",
-    image: "/headphones.jpg",
+    image: "/images/headphone.jpg",
   },
   {
     id: 2,
     name: "智能电饭煲",
     description: "多功能智能电饭煲，支持多种烹饪模式",
     price: "¥599",
-    image: "/rice-cooker.jpg",
+    image: "/images/rice-cooker.jpg",
   },
   {
     id: 3,
     name: "智能冰箱",
     description: "大容量智能冰箱，支持温度智能调节",
     price: "¥3999",
-    image: "/fridge.jpg",
+    image: "/images/fridge.jpg",
   },
 ];
 
 export default function ProductsPage() {
-  useAssistantInstructions("帮助用户了解产品信息并填写表单。");
+  useAssistantInstructions(
+    "Help the user understand product information and assist with shopping.",
+  );
   useAssistantTools();
 
   const handleAddToCart = (product: Product, quantity: number = 1) => {
@@ -85,12 +89,6 @@ export default function ProductsPage() {
                   )}
                 </div>
               </Link>
-              <Link href="/">
-                <Button variant="outline" className="flex items-center gap-2">
-                  <InfoIcon className="h-4 w-4" />
-                  填写表单
-                </Button>
-              </Link>
             </div>
           </div>
 
@@ -101,7 +99,13 @@ export default function ProductsPage() {
                 className="group relative overflow-hidden border border-gray-100 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-xl"
               >
                 <div className="aspect-square w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-                  <div className="h-full w-full bg-gradient-to-br from-gray-100 to-gray-200" />
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    width={400}
+                    height={400}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <CardHeader className="space-y-1">
                   <CardTitle className="line-clamp-1 text-lg font-semibold tracking-tight">
@@ -136,3 +140,5 @@ export default function ProductsPage() {
     </AssistantSidebar>
   );
 }
+
+
