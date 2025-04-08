@@ -54,6 +54,8 @@ export default function HeadsetDetailPage() {
   const commentsPerPage = 5;
 
   const { addItem } = useCartStore();
+  const cartItems = useCartStore((state) => state.items);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     // 加载耳机介绍信息
@@ -234,13 +236,25 @@ export default function HeadsetDetailPage() {
 
       <div className="scrollable-content">
         <div className="container mx-auto max-w-7xl px-4 py-8">
-          <div className="mb-6">
-            <Link
-              href="/products"
-              className="flex items-center text-blue-600 hover:text-blue-800"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              製品一覧に戻る
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/products">
+                <Button variant="ghost" size="icon">
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+              </Link>
+              <h1 className="text-3xl font-bold">ワイヤレスヘッドセット</h1>
+            </div>
+
+            <Link href="/cart">
+              <div className="relative cursor-pointer">
+                <ShoppingCart className="h-6 w-6" />
+                {cartCount > 0 && (
+                  <span className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                    {cartCount}
+                  </span>
+                )}
+              </div>
             </Link>
           </div>
 
