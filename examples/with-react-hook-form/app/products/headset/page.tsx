@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,6 +11,8 @@ import { useCartStore } from "@/lib/store";
 import { AssistantSidebar } from "@/components/ui/assistant-ui/assistant-sidebar";
 import { useAssistantInstructions } from "@assistant-ui/react";
 import { Toast } from "@/components/ui/toast";
+import { useAssistantTools } from "../../../lib/useAssistantTools";
+import { useEventListeners } from "../../../lib/eventListeners";
 
 // 添加滚动样式
 const scrollbarStyles = `
@@ -41,8 +44,10 @@ interface Comment {
 
 export default function HeadsetDetailPage() {
   useAssistantInstructions(
-    "Help the user understand the headset product details and reviews.",
+    "Help the user understand the headset product details and reviews",
   );
+  useAssistantTools();
+  useEventListeners([], undefined);
 
   const [headsetInfo, setHeadsetInfo] = useState<HeadsetInfo | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -457,3 +462,5 @@ export default function HeadsetDetailPage() {
     </AssistantSidebar>
   );
 }
+
+

@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -24,7 +25,7 @@ export const AssistantSidebar: FC<PropsWithChildren> = ({ children }) => {
           <TabsTrigger value="thread">Chat</TabsTrigger>
         </TabsList>
         <TabsContent value="app">{children}</TabsContent>
-        <TabsContent value="thread">
+        <TabsContent value="thread" className="h-full overflow-hidden">
           <Thread />
         </TabsContent>
       </Tabs>
@@ -35,9 +36,11 @@ export const AssistantSidebar: FC<PropsWithChildren> = ({ children }) => {
     <ResizablePanelGroup direction="horizontal">
       <ResizablePanel>{children}</ResizablePanel>
       <ResizableHandle />
-      <ResizablePanel>
+      <ResizablePanel className="overflow-hidden">
         <Thread />
       </ResizablePanel>
     </ResizablePanelGroup>
   );
 };
+
+
