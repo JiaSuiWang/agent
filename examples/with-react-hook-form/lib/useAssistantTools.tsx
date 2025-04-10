@@ -1,4 +1,3 @@
-
 import {
   useAssistantRuntime,
   useAssistantToolUI,
@@ -101,40 +100,6 @@ const ProcessOrderTool = () => {
   );
 };
 
-const HeadphoneQuestionTool = ({
-  content,
-  isLoading,
-  question,
-}: {
-  content: string;
-  isLoading?: boolean;
-  question?: string;
-}) => {
-  if (isLoading) {
-    return (
-      <div className="my-2 rounded-lg border border-gray-200 bg-blue-50 p-4">
-        <div className="mb-2 text-center">
-          <div className="font-medium text-purple-600">查询耳机评价</div>
-        </div>
-        <div className="flex flex-col items-center justify-center py-6">
-          <Loader2
-            className="mb-4 h-16 w-16 animate-spin text-purple-600"
-            strokeWidth={2}
-          />
-          <p className="text-gray-600">分析中...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="my-2 rounded-lg border border-gray-200 bg-blue-50 p-4">
-      <h3 className="mb-2 font-medium text-purple-600">耳机产品信息:</h3>
-      <div className="whitespace-pre-line text-sm text-gray-700">{content}</div>
-    </div>
-  );
-};
-
 export const useAssistantTools = () => {
   const assistantRuntime = useAssistantRuntime();
   const { items } = useCartStore();
@@ -197,6 +162,25 @@ export const useAssistantTools = () => {
       console.error("Error fetching headphone reviews:", error);
       return "无法获取耳机评论数据。";
     }
+  };
+
+  // 辅助函数：检测问题语言
+  const detectLanguage = (text: string): string => {
+    // 简单检测语言类型
+    const chineseRegex = /[\u4e00-\u9fa5]/;
+    const japaneseRegex = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/;
+    const englishRegex = /^[a-zA-Z0-9\s.,?!;:()'"-]+$/;
+
+    if (chineseRegex.test(text)) {
+      return "Chinese";
+    } else if (japaneseRegex.test(text) && !chineseRegex.test(text)) {
+      return "Japanese";
+    } else if (englishRegex.test(text)) {
+      return "English";
+    }
+
+    // 默认返回英语
+    return "English";
   };
 
   useEffect(() => {
@@ -294,7 +278,7 @@ export const useAssistantTools = () => {
       } as Tool<any, any>,
       headphone_question: {
         description:
-          "Execute this tool when user asks questions about the wireless headphones product (ID: 1). This will search through customer reviews and provide relevant information about comfort, sound quality, microphone, and other headphone features. Examples: 'How comfortable are the headphones?', 'What do people say about the sound quality?', 'Is the microphone good?', 'Do the headphones hurt ears?'",
+          "Execute this tool when user asks questions about the wireless headphones product (ID: 1). This will search through customer reviews and provide relevant information. IMPORTANT: You MUST answer in the SAME language as the question. If the question is in Chinese, answer in Chinese. If the question is in English, answer in English. If the question is in Japanese, answer in Japanese.",
         parameters: {
           type: "object",
           properties: {
@@ -340,6 +324,22 @@ export const useAssistantTools = () => {
             );
             console.log("Loading status: fetching reviews completed");
 
+            // 检测问题的语言
+            const questionLanguage = detectLanguage(args.question);
+            console.log("Detected question language:", questionLanguage);
+
+            // 创建特定语言的指令
+            const langInstructions = {
+              Chinese: "请用中文回答以下关于耳机的问题",
+              English:
+                "Please answer the following headphone question in English",
+              Japanese:
+                "以下のヘッドフォンについての質問を日本語で答えてください",
+            };
+
+            console.log(
+              `${langInstructions[questionLanguage as keyof typeof langInstructions]}: "${args.question}" based on these customer reviews:`,
+            );
             // 直接调用OpenAI API
             console.log("Loading status: calling OpenAI API");
             const response = await fetch(
@@ -355,12 +355,27 @@ export const useAssistantTools = () => {
                   messages: [
                     {
                       role: "system",
-                      content:
-                        "You are a helpful shopping assistant that helps customers understand product information based on customer reviews. answer in the language of the question.",
+                      content: `You are a helpful shopping assistant that helps customers understand product information based on customer reviews. 
+                        
+IMPORTANT INSTRUCTIONS:
+1. You MUST answer in the SAME language as the question. ${langInstructions[questionLanguage as keyof typeof langInstructions]}
+2. When answering, QUOTE ACTUAL USER COMMENTS and provide EXACT NUMERICAL counts, such as "7 users mentioned that the headphones hurt their ears after prolonged use".
+3. DO NOT use vague statistical language like "majority of users", "several users", "a few users". ALWAYS use EXACT NUMBERS (e.g., "8 users", "3 users", "1 user").
+4. Structure your answer clearly with bullet points if needed.
+5. Be honest about both positive and negative aspects mentioned in the reviews.
+6. Count each distinct user comment separately when calculating statistics.`,
                     },
                     {
                       role: "user",
-                      content: `Generate a response to this customer question about wireless headphones: "${args.question}" based on these customer reviews: ${headphoneReviews} and answer in the language of the question.`,
+                      content: `${langInstructions[questionLanguage as keyof typeof langInstructions]}: "${args.question}" 
+                      
+Based on these customer reviews, please analyze and respond with:
+1. SPECIFIC QUOTES from actual users
+2. EXACT NUMBER of users who mentioned each aspect (e.g., "7 users mentioned sound quality")
+3. DO NOT use vague terms like "several", "many", "a few" - only use precise numbers
+
+Customer reviews:
+${headphoneReviews}`,
                     },
                   ],
                   temperature: 0,
@@ -504,10 +519,7 @@ When user wants to proceed with order or checkout, navigate to the form page whe
       ) {
         console.log("Showing loading UI");
         return (
-          <div className="my-2 rounded-lg border border-gray-200 bg-blue-50 p-4">
-            <div className="mb-2 text-center">
-              <div className="font-medium text-purple-600">查询耳机评价</div>
-            </div>
+          <div className="my-2 rounded-lg bg-blue-50 p-4">
             <div className="flex flex-col items-center justify-center py-6">
               <Loader2
                 className="mb-4 h-16 w-16 animate-spin text-purple-600"
@@ -521,20 +533,10 @@ When user wants to proceed with order or checkout, navigate to the form page whe
 
       // 确保我们有结果才显示结果组件
       if (hasResult) {
-        console.log("Showing result UI with answer:", props.result.answer);
-        return (
-          <HeadphoneQuestionTool
-            content={props.result.answer}
-            isLoading={false}
-          />
-        );
+        return null;
       }
 
-      // 如果既没有加载状态也没有结果，显示初始状态
-      // 通常我们不会到达这里，但为了安全
       return null;
     },
   });
 };
-
-
