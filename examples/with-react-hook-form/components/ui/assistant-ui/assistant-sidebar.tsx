@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/resizable";
 import { useMediaQuery } from "@react-hook/media-query";
 import type { FC, PropsWithChildren } from "react";
-import { Thread } from "@assistant-ui/react-ui";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../tabs";
+import { CustomThread } from "./CustomThread";
 
 export const AssistantSidebar: FC<PropsWithChildren> = ({ children }) => {
   const isSmall = useMediaQuery("(max-width: 768px)");
@@ -25,8 +25,8 @@ export const AssistantSidebar: FC<PropsWithChildren> = ({ children }) => {
           <TabsTrigger value="thread">Chat</TabsTrigger>
         </TabsList>
         <TabsContent value="app">{children}</TabsContent>
-        <TabsContent value="thread" className="h-full overflow-hidden">
-          <Thread />
+        <TabsContent value="thread">
+          <CustomThread />
         </TabsContent>
       </Tabs>
     );
@@ -36,8 +36,8 @@ export const AssistantSidebar: FC<PropsWithChildren> = ({ children }) => {
     <ResizablePanelGroup direction="horizontal">
       <ResizablePanel>{children}</ResizablePanel>
       <ResizableHandle />
-      <ResizablePanel className="overflow-hidden">
-        <Thread />
+      <ResizablePanel>
+        <CustomThread />
       </ResizablePanel>
     </ResizablePanelGroup>
   );

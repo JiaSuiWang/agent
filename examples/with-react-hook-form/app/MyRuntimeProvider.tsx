@@ -1,6 +1,11 @@
+
 "use client";
 
-import { AssistantRuntimeProvider, useEdgeRuntime } from "@assistant-ui/react";
+import {
+  AssistantRuntimeProvider,
+  useEdgeRuntime,
+  WebSpeechSynthesisAdapter,
+} from "@assistant-ui/react";
 
 export function MyRuntimeProvider({
   children,
@@ -9,6 +14,9 @@ export function MyRuntimeProvider({
 }>) {
   const runtime = useEdgeRuntime({
     api: "/api/chat",
+    adapters: {
+      speech: new WebSpeechSynthesisAdapter(),
+    },
   });
 
   return (
@@ -17,3 +25,5 @@ export function MyRuntimeProvider({
     </AssistantRuntimeProvider>
   );
 }
+
+
