@@ -72,5 +72,11 @@
   }
   body {
     @apply bg-background text-foreground;
+    height: 100dvh;
+    overflow-y: hidden;
+    min-height: auto;
+  }
+  html {
+    overflow-y: hidden;
   }
 }
