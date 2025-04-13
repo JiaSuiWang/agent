@@ -1,4 +1,3 @@
-
 import {
   useAssistantRuntime,
   useAssistantToolUI,
@@ -47,7 +46,7 @@ export const useFormTools = <TFieldValues extends FieldValues = FieldValues>(
   const { control, getValues, setValue } = form;
 
   useEffect(() => {
-    // Form tools config - 直接定义工具逻辑
+    // Form tools config - directly define tool logic
     const toolsConfig = {
       set_form_field: {
         description: "Set a field value in the form",
@@ -81,7 +80,7 @@ export const useFormTools = <TFieldValues extends FieldValues = FieldValues>(
           required: [],
         },
         execute: async () => {
-          // 设置提交状态
+          // Set submission status
           setIsSubmitted(true);
 
           return {
@@ -127,5 +126,3 @@ export const useFormTools = <TFieldValues extends FieldValues = FieldValues>(
 
   return form;
 };
-
-

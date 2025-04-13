@@ -1,4 +1,3 @@
-
 "use client";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +30,7 @@ export const SignupForm: FC<{
     try {
       setIsSubmitting(true);
       setError(null);
-      setIsSubmitted(true); // 设置提交状态
+      setIsSubmitted(true); // Set submission status
     } catch (error) {
       console.error("Error submitting form:", error);
       setError(
@@ -230,5 +229,3 @@ export const SignupForm: FC<{
     </Form>
   );
 };
-
-

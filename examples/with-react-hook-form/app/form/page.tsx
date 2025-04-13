@@ -20,7 +20,7 @@ export default function FormPage() {
     "Help the user complete the order shipping information form.",
   );
 
-  // 使用分离的工具 - 表单工具单独处理
+  // Use separated tools - form tools handled separately
   const form = useFormTools(
     {
       firstName: "John",
