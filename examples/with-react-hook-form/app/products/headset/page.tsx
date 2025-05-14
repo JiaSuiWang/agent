@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -44,7 +43,7 @@ interface Comment {
 
 export default function HeadsetDetailPage() {
   useAssistantInstructions(
-    "Help the user understand the headset product details and reviews",
+    "Help the user understand the headset product details and reviews. You need to answer in the language of the question. If the question is in Chinese, answer in Chinese. If the question is in English, answer in English. If the question is in Japanese, answer in Japanese.",
   );
   useAssistantTools();
   useEventListeners([], undefined);
@@ -462,5 +461,3 @@ export default function HeadsetDetailPage() {
     </AssistantSidebar>
   );
 }
-
-
